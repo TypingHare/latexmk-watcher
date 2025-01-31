@@ -10,10 +10,12 @@ import { readFileSync } from 'fs'
 export const CONFIG_NAME = 'latexmk-watcher.config.json'
 
 export interface Config {
-    // The source directory
+    // The source directory, in which all tex files should be placed
     sourceDir: string
 
-    // The build directory
+    // The build directory. This directory is regarded as the "output directory"
+    // for latexmk. It should be added to .gitignore, as all files in it are
+    // temporary files
     buildDir: string
 
     // The default file that is used when the <file> argument is omitted
@@ -22,13 +24,14 @@ export interface Config {
     // The latexmk command
     latexmkCommand: string
 
-    // The latexmk options
+    // The latexmk options. It is a string that will be concatenated to a full
+    // command in the `watch` command
     latexmkOptions: string
 
     // The previewer (an application name)
     previewer: string
 
-    // The release directory
+    // The release directory that is used in the `release` command
     releaseDir: string
 }
 
@@ -64,28 +67,52 @@ export const configFilePath = (function () {
     return path.resolve(process.cwd(), CONFIG_NAME)
 })()
 
-export const projectDir = path.dirname(configFilePath)
+/**
+ * The static configuration. It is updated whenever the configuration is
+ * persisted.
+ */
+export const staticConfig: Config = loadConfig()
 
+/**
+ * Checks if the configuration file exists.
+ */
 export function existConfigFile(): boolean {
     return existsSync(configFilePath)
 }
 
-export function readConfig(): Config {
+/**
+ * Loads configuration from the configuration file. If the configuration file
+ * does not exist, returns the default configuration.
+ */
+export function loadConfig(): Config {
     return existsSync(configFilePath)
         ? JSON.parse(readFileSync(configFilePath, 'utf8'))
         : defaultConfig
 }
 
-export function writeConfig(config: Config): void {
+/**
+ * Saves configuration to the configuration file.
+ */
+export function saveConfig(config: Config): void {
     ensureDirSync(path.dirname(configFilePath))
     writeFileSync(configFilePath, JSON.stringify(config, null, 2))
+
+    // Update the static configuration
+    Object.assign(staticConfig, config)
 }
 
+/**
+ * Loads configuration from the configuration file, and passes it to the
+ * `updater`.
+ *
+ * @param updater If the updater function returns a `Config` object, the
+ * returned object will be saved to the configuration file.
+ */
 export function updateConfig(updater: (config: Config) => Config | void): void {
-    const currentConfig = readConfig()
+    const currentConfig = loadConfig()
     const updatedConfig = updater(currentConfig)
 
     if (updatedConfig != null) {
-        writeConfig(updatedConfig)
+        saveConfig(updatedConfig)
     }
 }

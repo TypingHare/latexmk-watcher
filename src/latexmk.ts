@@ -1,6 +1,4 @@
 import { runShellCommand } from './shell.js'
-import path from 'node:path'
-import { readConfig } from './config.js'
 
 /**
  * Retrieves the version of latexmk. Returns `(Not Installed)` if the exit code
@@ -22,12 +20,4 @@ export async function getLatexmkVersion(): Promise<string> {
 export async function latexmkInstalled(): Promise<boolean> {
     const { exitCode } = await runShellCommand('latexmk --version')
     return exitCode === 0
-}
-
-/**
- * Retrieves the path to the generated PDF file.
- */
-export function getPdfFilePath(): string {
-    const { buildDir } = readConfig()
-    return path.resolve(buildDir)
 }

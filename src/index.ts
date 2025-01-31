@@ -1,3 +1,4 @@
-import { program, run } from './app.js'
-
-run(program, process.argv)
+export * from './app.js'
+export * from './config.js'
+export * from './latexmk.js'
+export * from './shell.js'

@@ -1,12 +1,13 @@
 {
   "name": "latexmk-watcher",
   "version": "0.0.0",
-  "description": "Latexmk watcher.",
+  "description": "A latexmk watcher to improve productivity.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "module",
   "bin": {
-    "latexmk-watcher": "src/bin/latexmk-watcher"
+    "latexmk-watcher": "src/bin/latexmk-watcher",
+    "lmkw": "src/bin/lmkw"
   },
   "scripts": {
     "build": "tsc",

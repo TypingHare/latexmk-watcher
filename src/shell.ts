@@ -1,5 +1,6 @@
 import { promisify } from 'util'
 import { exec, spawn } from 'node:child_process'
+import chalk from 'chalk'
 
 export interface ShellCommandResult {
     stdout: string
@@ -44,4 +45,8 @@ export function spawnShellCommand(
     childProcess.on('error', (error) => {
         console.error(`Failed to start subprocess: ${error}`)
     })
+}
+
+export function printExecutedCommand(command: string) {
+    console.log('Executing shell command: ' + chalk.yellow(command))
 }

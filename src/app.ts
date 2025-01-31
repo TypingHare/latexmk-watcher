@@ -1,21 +1,22 @@
 import { Command } from 'commander'
-import {
-    getLatexmkVersion,
-    getPdfFilePath,
-    latexmkInstalled,
-} from './latexmk.js'
+import { getLatexmkVersion, latexmkInstalled } from './latexmk.js'
 import {
     configFilePath,
     defaultConfig,
     existConfigFile,
-    projectDir,
-    readConfig,
+    staticConfig,
     updateConfig,
 } from './config.js'
 import chalk from 'chalk'
 import process from 'node:process'
 import path from 'node:path'
-import { runShellCommand, spawnShellCommand } from './shell.js'
+import {
+    printExecutedCommand,
+    runShellCommand,
+    spawnShellCommand,
+} from './shell.js'
+import { ensureDirSync } from 'fs-extra'
+import { getProjectFile, projectDir } from './project.js'
 
 export const APP_NAME = 'latexmk-watcher'
 export const VERSION = '0.0.0'
@@ -27,6 +28,20 @@ program
     .description('A latexmk watcher that makes latex development smoother.')
     .version(VERSION, '-v, --version', 'Display the version.')
     .helpOption('-h, --help', 'Display the help information.')
+
+program
+    .command('env')
+    .description('Display the environment information.')
+    .action(async () => {
+        console.log(`${chalk.bold(APP_NAME)}: ${VERSION}`)
+        console.log(`${chalk.bold('latexmk')}: ${await getLatexmkVersion()}`)
+
+        console.log('-'.repeat(79))
+        console.log(`project directory: ${projectDir}`)
+
+        console.log('-'.repeat(79))
+        console.log(staticConfig)
+    })
 
 program
     .command('init')
@@ -49,19 +64,9 @@ program
     })
 
 program
-    .command('env')
-    .description('Display the environment information.')
-    .action(async () => {
-        console.log(`${chalk.bold(APP_NAME)}: ${VERSION}`)
-        console.log(`${chalk.bold('latexmk')}: ${await getLatexmkVersion()}`)
-        console.log('-'.repeat(79))
-        console.log(`project directory: ${projectDir}`)
-    })
-
-program
     .command('watch')
-    .description('Watches a tex file.')
-    .argument('<file>', 'The tex file to watch.')
+    .description('Watch a tex file.')
+    .argument('[<file>]', 'The tex file to watch.')
     .action(async (file: string) => {
         if (!existConfigFile()) {
             throw new Error(
@@ -75,31 +80,37 @@ program
             throw new Error('Latexmk is not installed.')
         }
 
-        const { sourceDir, buildDir, latexmkCommand, latexmkOptions } =
-            readConfig()
-        const watchFilePath = path.resolve(projectDir, sourceDir, file)
+        const {
+            sourceDir,
+            buildDir,
+            defaultFile,
+            latexmkCommand,
+            latexmkOptions,
+        } = staticConfig
+        file = file || defaultFile
+        const watchFilePath = getProjectFile(sourceDir, file)
         const fullOptions = `${latexmkOptions} -output-directory=${buildDir}`
-        const command = `${latexmkCommand} ${fullOptions} ${watchFilePath}`
+        const fullCommand = `${latexmkCommand} ${fullOptions} ${watchFilePath}`
 
-        console.log(chalk.green(command))
-        spawnShellCommand(command, projectDir)
+        printExecutedCommand(fullCommand)
+        spawnShellCommand(fullCommand, projectDir)
     })
 
 program
     .command('release')
-    .description('Releases a file.')
-    .argument('[<file>]', 'The file to release.', '')
+    .description('Release a PDF.')
+    .argument('[<file>]', 'The file to release.')
     .action(async (file: string) => {
-        const { releaseDir, defaultFile } = readConfig()
+        const { sourceDir, buildDir, releaseDir, defaultFile } = staticConfig
         file = file || defaultFile
 
-        const pdfFilePath = getPdfFilePath()
-        const releaseFilePath = path.resolve(
-            releaseDir,
-            path.basename(file, '.tex') + '.pdf'
-        )
+        const pdfFileName = path.basename(file, '.tex') + '.pdf'
+        const pdfFilePath = getProjectFile(sourceDir, buildDir, pdfFileName)
+        const releaseFilePath = getProjectFile(releaseDir, pdfFileName)
+
+        ensureDirSync(path.dirname(releaseFilePath))
         const command = `cp -f ${pdfFilePath} ${releaseFilePath}`
-        console.log(chalk.green(command))
+        printExecutedCommand(command)
         await runShellCommand(command)
     })
 
