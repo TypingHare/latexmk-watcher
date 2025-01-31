@@ -17,6 +17,9 @@ importers:
       fs-extra:
         specifier: ^11.3.0
         version: 11.3.0
+      latexmk-watcher:
+        specifier: ^0.0.0
+        version: 0.0.0
       moment:
         specifier: ^2.30.1
         version: 2.30.1
@@ -62,6 +65,10 @@ packages:
 
   jsonfile@6.1.0:
     resolution: {integrity: sha512-5dgndWOriYSm5cnYaJNhalLNDKOqFwyDB/rr1E9ZsGciGvKPs8R2xYGCacuf3z6K1YKDz182fd+fY3cn3pMqXQ==}
+
+  latexmk-watcher@0.0.0:
+    resolution: {integrity: sha512-QY+igNKH6Px+jZlk0sFR0g+LGI27dtOQukemcuZBX/hALJ6Dc4ww5WFhAos8a30290cVSneWhsQirOQ7HtVqPw==}
+    hasBin: true
 
   moment@2.30.1:
     resolution: {integrity: sha512-uEmtNhbDOrWPFS+hdjFCBfy9f2YoyzRpwcl+DqpC6taX21FzsTLQVbMV/W7PzNSX6x/bhC1zA3c2UQ5NzH6how==}
@@ -115,6 +122,13 @@ snapshots:
       universalify: 2.0.1
     optionalDependencies:
       graceful-fs: 4.2.11
+
+  latexmk-watcher@0.0.0:
+    dependencies:
+      chalk: 5.4.1
+      commander: 13.1.0
+      fs-extra: 11.3.0
+      moment: 2.30.1
 
   moment@2.30.1: {}
 

@@ -21,15 +21,16 @@ import { Watcher } from './watcher.js'
 
 const { ensureDirSync, removeSync } = fsExtra
 
-export const APP_NAME = path.basename(process.argv[1]).trim()
+export const APP_NAME = 'latexmk-watcher'
+export const COMMAND_NAME = path.basename(process.argv[1]).trim()
 export const VERSION = '0.0.0'
 
 export const program = new Command()
 
 program
-    .name(APP_NAME)
+    .name(COMMAND_NAME)
     .description('A latexmk watcher that makes latex development smoother.')
-    .version(VERSION, '-v, --version', 'Display the version.')
+    .version(`${APP_NAME} v${VERSION}`, '-v, --version', 'Display the version.')
     .helpOption('-h, --help', 'Display the help information.')
 
 program

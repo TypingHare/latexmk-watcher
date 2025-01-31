@@ -1,6 +1,6 @@
 {
   "name": "latexmk-watcher",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "A latexmk watcher to improve productivity.",
   "homepage": "https://github.com/TypingHare/latexmk-watcher",
   "main": "dist/index.js",
@@ -11,8 +11,7 @@
     "lmkw": "src/bin/lmkw"
   },
   "scripts": {
-    "build": "tsc",
-    "publish": "rm -rf dist && tsc && npm publish --access public"
+    "build": "rm -rf dist && tsc"
   },
   "keywords": [
     "latex",
@@ -44,6 +43,8 @@
     "chalk": "^5.4.1",
     "commander": "^13.1.0",
     "fs-extra": "^11.3.0",
+    "latexmk-watcher": "^0.0.0",
     "moment": "^2.30.1"
-  }
+  },
+  "packageManager": "pnpm@9.15.4+sha512.b2dc20e2fc72b3e18848459b37359a32064663e5627a51e4c74b2c29dd8e8e0491483c3abb40789cfd578bf362fb6ba8261b05f0387d76792ed6e23ea3b1b6a0"
 }
