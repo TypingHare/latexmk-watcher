@@ -15,10 +15,13 @@ import {
     runShellCommand,
     spawnShellCommand,
 } from './shell.js'
-import { ensureDirSync } from 'fs-extra'
-import { getProjectFile, projectDir } from './project.js'
+import fsExtra from 'fs-extra'
+import { getProjectFilePath, projectDir } from './project.js'
+import { Watcher } from './watcher.js'
 
-export const APP_NAME = 'latexmk-watcher'
+const { ensureDirSync, removeSync } = fsExtra
+
+export const APP_NAME = path.basename(process.argv[1]).trim()
 export const VERSION = '0.0.0'
 
 export const program = new Command()
@@ -38,6 +41,8 @@ program
 
         console.log('-'.repeat(79))
         console.log(`project directory: ${projectDir}`)
+        const statusString = existConfigFile() ? '' : ' (Not Created)'
+        console.log(`configuration file: ${configFilePath}` + statusString)
 
         console.log('-'.repeat(79))
         console.log(staticConfig)
@@ -86,14 +91,21 @@ program
             defaultFile,
             latexmkCommand,
             latexmkOptions,
+            watchInterval,
+            previewer,
         } = staticConfig
         file = file || defaultFile
-        const watchFilePath = getProjectFile(sourceDir, file)
+        const watchFilePath = getProjectFilePath(sourceDir, file)
         const fullOptions = `${latexmkOptions} -output-directory=${buildDir}`
         const fullCommand = `${latexmkCommand} ${fullOptions} ${watchFilePath}`
 
         printExecutedCommand(fullCommand)
         spawnShellCommand(fullCommand, projectDir)
+
+        const pdfFileName = path.basename(file, '.tex') + '.pdf'
+        const pdfFilePath = getProjectFilePath(sourceDir, buildDir, pdfFileName)
+        const openPdfCommand = `open ${pdfFilePath} -a '${previewer}' --background`
+        new Watcher(pdfFilePath, watchInterval, openPdfCommand).start()
     })
 
 program
@@ -101,17 +113,25 @@ program
     .description('Release a PDF.')
     .argument('[<file>]', 'The file to release.')
     .action(async (file: string) => {
-        const { sourceDir, buildDir, releaseDir, defaultFile } = staticConfig
+        const { sourceDir, buildDir, defaultFile, releaseDir } = staticConfig
         file = file || defaultFile
 
         const pdfFileName = path.basename(file, '.tex') + '.pdf'
-        const pdfFilePath = getProjectFile(sourceDir, buildDir, pdfFileName)
-        const releaseFilePath = getProjectFile(releaseDir, pdfFileName)
+        const pdfFilePath = getProjectFilePath(sourceDir, buildDir, pdfFileName)
+        const releaseFilePath = getProjectFilePath(releaseDir, pdfFileName)
 
         ensureDirSync(path.dirname(releaseFilePath))
         const command = `cp -f ${pdfFilePath} ${releaseFilePath}`
         printExecutedCommand(command)
         await runShellCommand(command)
+    })
+
+program
+    .command('clean')
+    .description('Clean the build directory.')
+    .action(async () => {
+        const { sourceDir, buildDir } = staticConfig
+        removeSync(getProjectFilePath(sourceDir, buildDir))
     })
 
 export function run(program: Command, argv: string[]) {

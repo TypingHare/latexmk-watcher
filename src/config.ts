@@ -28,6 +28,9 @@ export interface Config {
     // command in the `watch` command
     latexmkOptions: string
 
+    // The watch interval in milliseconds
+    watchInterval: number
+
     // The previewer (an application name)
     previewer: string
 
@@ -44,7 +47,8 @@ export const defaultConfig: Config = {
     defaultFile: 'main.tex',
     latexmkCommand: 'latexmk',
     latexmkOptions: '-pdf -xelatex -cd',
-    previewer: 'Safari',
+    watchInterval: 1000,
+    previewer: 'Google Chrome',
     releaseDir: 'release',
 }
 

@@ -34,11 +34,11 @@ export function spawnShellCommand(
     })
 
     childProcess.stdout.on('data', (data) => {
-        console.log(data.toString())
+        process.stdout.write(data)
     })
 
     childProcess.stderr.on('data', (data) => {
-        console.error(data.toString())
+        process.stderr.write(data)
     })
 
     // Handle errors

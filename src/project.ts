@@ -10,6 +10,6 @@ export const projectDir = path.dirname(configFilePath)
 /**
  * Gets the absolute path to a project file in the project directory.
  */
-export function getProjectFile(...filePath: string[]): string {
+export function getProjectFilePath(...filePath: string[]): string {
     return path.resolve(projectDir, ...filePath)
 }
