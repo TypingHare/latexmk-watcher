@@ -1,0 +1,41 @@
+{
+  "name": "latexmk-watcher",
+  "version": "0.0.0",
+  "description": "Latexmk watcher.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "bin": {
+    "latexmk-watcher": "src/bin/latexmk-watcher"
+  },
+  "scripts": {
+    "build": "tsc",
+    "publish": "rm -rf dist && tsc && npm publish --access public"
+  },
+  "keywords": [
+    "latex",
+    "watcher"
+  ],
+  "author": "James Chen",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^22.12.0",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.3"
+  },
+  "prettier": {
+    "trailingComma": "es5",
+    "tabWidth": 4,
+    "semi": false,
+    "singleQuote": true,
+    "endOfLine": "auto",
+    "printWidth": 80
+  },
+  "dependencies": {
+    "chalk": "^5.4.1",
+    "commander": "^13.1.0",
+    "fs-extra": "^11.3.0",
+    "moment": "^2.30.1"
+  }
+}
