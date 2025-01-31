@@ -2,6 +2,7 @@
   "name": "latexmk-watcher",
   "version": "0.0.0",
   "description": "A latexmk watcher to improve productivity.",
+  "homepage": "https://github.com/TypingHare/latexmk-watcher",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "module",
@@ -16,6 +17,12 @@
   "keywords": [
     "latex",
     "watcher"
+  ],
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md",
+    "tsconfig.json"
   ],
   "author": "James Chen",
   "license": "MIT",
