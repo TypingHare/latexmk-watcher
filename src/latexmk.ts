@@ -1,4 +1,8 @@
 import { runShellCommand } from './shell.js'
+import { getProjectFilePath } from './project.js'
+import fsExtra from 'fs-extra'
+
+const { remove } = fsExtra
 
 /**
  * Retrieves the version of latexmk. Returns `(Not Installed)` if the exit code
@@ -20,4 +24,19 @@ export async function getLatexmkVersion(): Promise<string> {
 export async function latexmkInstalled(): Promise<boolean> {
     const { exitCode } = await runShellCommand('latexmk --version')
     return exitCode === 0
+}
+
+/**
+ * Removes the build directory.
+ * @param sourceDir The path to the source directory.
+ * @param buildDir The name of the build directory.
+ */
+export async function removeBuildDir(
+    sourceDir: string,
+    buildDir: string
+): Promise<string> {
+    const buildDirPath = getProjectFilePath(sourceDir, buildDir)
+    await remove(buildDirPath)
+
+    return buildDirPath
 }

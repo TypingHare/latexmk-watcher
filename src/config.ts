@@ -7,7 +7,7 @@ import { readFileSync } from 'fs'
  * The name of the configuration file, which marks the directory as a
  * latexmk-watcher root directory.
  */
-export const CONFIG_NAME = 'latexmk-watcher.config.json'
+export const CONFIG_FILE_NAME = 'latexmk-watcher.config.json'
 
 export interface Config {
     // The source directory, in which all tex files should be placed
@@ -36,20 +36,24 @@ export interface Config {
 
     // The release directory that is used in the `release` command
     releaseDir: string
+
+    // Whether to remove the build directory automatically when the app starts
+    removeBuildDirWhenStart: boolean
 }
 
 /**
  * The default configuration.
  */
 export const defaultConfig: Config = {
-    sourceDir: 'src',
+    sourceDir: 'latex',
     buildDir: 'build',
     defaultFile: 'main.tex',
     latexmkCommand: 'latexmk',
-    latexmkOptions: '-pdf -xelatex -cd',
+    latexmkOptions: '-pdf',
     watchInterval: 1000,
     previewer: 'Google Chrome',
     releaseDir: 'release',
+    removeBuildDirWhenStart: true,
 }
 
 /**
@@ -60,7 +64,7 @@ export const defaultConfig: Config = {
 export const configFilePath = (function () {
     let dirPath = process.cwd()
     while (dirPath.length > 1) {
-        const configFilePath = path.resolve(dirPath, CONFIG_NAME)
+        const configFilePath = path.resolve(dirPath, CONFIG_FILE_NAME)
         if (existsSync(configFilePath)) {
             return configFilePath
         }
@@ -68,7 +72,7 @@ export const configFilePath = (function () {
         dirPath = path.dirname(dirPath).trim()
     }
 
-    return path.resolve(process.cwd(), CONFIG_NAME)
+    return path.resolve(process.cwd(), CONFIG_FILE_NAME)
 })()
 
 /**
@@ -87,11 +91,17 @@ export function existConfigFile(): boolean {
 /**
  * Loads configuration from the configuration file. If the configuration file
  * does not exist, returns the default configuration.
+ *
+ * @since 0.0.1 The returned configuration supplements default entries for
+ * missing keys.
  */
 export function loadConfig(): Config {
-    return existsSync(configFilePath)
-        ? JSON.parse(readFileSync(configFilePath, 'utf8'))
-        : defaultConfig
+    if (!existsSync(configFilePath)) {
+        return defaultConfig
+    }
+
+    const projectConfig = JSON.parse(readFileSync(configFilePath, 'utf8'))
+    return { ...defaultConfig, ...projectConfig }
 }
 
 /**

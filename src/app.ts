@@ -1,6 +1,11 @@
 import { Command } from 'commander'
-import { getLatexmkVersion, latexmkInstalled } from './latexmk.js'
 import {
+    getLatexmkVersion,
+    latexmkInstalled,
+    removeBuildDir,
+} from './latexmk.js'
+import {
+    CONFIG_FILE_NAME,
     configFilePath,
     defaultConfig,
     existConfigFile,
@@ -18,12 +23,17 @@ import {
 import fsExtra from 'fs-extra'
 import { getProjectFilePath, projectDir } from './project.js'
 import { Watcher } from './watcher.js'
+import * as os from 'node:os'
+import { existsSync } from 'node:fs'
+import { readFileSync } from 'fs'
+import { displayErrorMessageAndExit } from './error.js'
+import { checkSystem } from './system.js'
 
-const { ensureDirSync, removeSync } = fsExtra
+const { ensureDirSync } = fsExtra
 
 export const APP_NAME = 'latexmk-watcher'
 export const COMMAND_NAME = path.basename(process.argv[1]).trim()
-export const VERSION = '0.0.0'
+export const VERSION = '0.0.1'
 
 export const program = new Command()
 
@@ -33,6 +43,12 @@ program
     .version(`${APP_NAME} v${VERSION}`, '-v, --version', 'Display the version.')
     .helpOption('-h, --help', 'Display the help information.')
 
+program.action(async () => {
+    await program.commands
+        .find((cmd) => cmd.name() === 'watch')!
+        .parseAsync(process.argv)
+})
+
 program
     .command('env')
     .description('Display the environment information.')
@@ -40,12 +56,12 @@ program
         console.log(`${chalk.bold(APP_NAME)}: ${VERSION}`)
         console.log(`${chalk.bold('latexmk')}: ${await getLatexmkVersion()}`)
 
-        console.log('-'.repeat(79))
+        console.log('-'.repeat(80))
         console.log(`project directory: ${projectDir}`)
         const statusString = existConfigFile() ? '' : ' (Not Created)'
         console.log(`configuration file: ${configFilePath}` + statusString)
 
-        console.log('-'.repeat(79))
+        console.log('-'.repeat(80))
         console.log(staticConfig)
     })
 
@@ -65,7 +81,18 @@ program
             )
         }
 
-        updateConfig(() => defaultConfig)
+        const globalConfigPath = path.resolve(
+            os.homedir(),
+            '.' + CONFIG_FILE_NAME
+        )
+
+        const config = defaultConfig
+        if (existsSync(globalConfigPath)) {
+            const content = readFileSync(globalConfigPath, 'utf8')
+            Object.assign(config, JSON.parse(content))
+        }
+
+        updateConfig(() => config)
         console.log(`Created configuration file: ${configFilePath}`)
     })
 
@@ -94,10 +121,17 @@ program
             latexmkOptions,
             watchInterval,
             previewer,
+            removeBuildDirWhenStart,
         } = staticConfig
+
+        if (removeBuildDirWhenStart) {
+            const buildDirPath = await removeBuildDir(sourceDir, buildDir)
+            console.log(`Removed build directory: ${buildDirPath}`)
+        }
+
         file = file || defaultFile
         const watchFilePath = getProjectFilePath(sourceDir, file)
-        const fullOptions = `${latexmkOptions} -output-directory=${buildDir}`
+        const fullOptions = `${latexmkOptions} -cd -output-directory=${buildDir}`
         const fullCommand = `${latexmkCommand} ${fullOptions} ${watchFilePath}`
 
         printExecutedCommand(fullCommand)
@@ -111,7 +145,7 @@ program
 
 program
     .command('release')
-    .description('Release a PDF.')
+    .description('Move the PDF file to the release directory.')
     .argument('[<file>]', 'The file to release.')
     .action(async (file: string) => {
         const { sourceDir, buildDir, defaultFile, releaseDir } = staticConfig
@@ -129,13 +163,20 @@ program
 
 program
     .command('clean')
-    .description('Clean the build directory.')
+    .description('Remove the build directory.')
     .action(async () => {
         const { sourceDir, buildDir } = staticConfig
-        removeSync(getProjectFilePath(sourceDir, buildDir))
+        const buildDirPath = await removeBuildDir(sourceDir, buildDir)
+        console.log(`Removed build directory: ${buildDirPath}`)
     })
 
 export function run(program: Command, argv: string[]) {
+    try {
+        checkSystem()
+    } catch (error: unknown) {
+        displayErrorMessageAndExit(error)
+    }
+
     program.exitOverride()
     process.on('uncaughtException', (error: unknown) => {
         // Don't treat help or version displays as errors
@@ -150,10 +191,7 @@ export function run(program: Command, argv: string[]) {
             process.exit(0)
         }
 
-        const errorMessage =
-            error instanceof Error ? error.message : String(error)
-        console.error(chalk.red(errorMessage))
-        process.exit(1)
+        displayErrorMessageAndExit(error)
     })
 
     program.parse(argv)
