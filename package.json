@@ -1,49 +1,50 @@
 {
-  "name": "latexmk-watcher",
-  "version": "0.0.1",
-  "description": "A latexmk watcher to improve productivity.",
-  "homepage": "https://github.com/TypingHare/latexmk-watcher",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "type": "module",
-  "bin": {
-    "latexmk-watcher": "src/bin/latexmk-watcher",
-    "lmkw": "src/bin/lmkw"
-  },
-  "scripts": {
-    "build": "rm -rf dist && tsc"
-  },
-  "keywords": [
-    "latex",
-    "watcher"
-  ],
-  "files": [
-    "dist",
-    "LICENSE",
-    "README.md",
-    "tsconfig.json"
-  ],
-  "author": "James Chen",
-  "license": "MIT",
-  "devDependencies": {
-    "@types/fs-extra": "^11.0.4",
-    "@types/node": "^22.15.21",
-    "prettier": "^3.5.3",
-    "typescript": "^5.8.3"
-  },
-  "prettier": {
-    "trailingComma": "es5",
-    "tabWidth": 4,
-    "semi": false,
-    "singleQuote": true,
-    "endOfLine": "auto",
-    "printWidth": 80
-  },
-  "dependencies": {
-    "chalk": "^5.4.1",
-    "commander": "^14.0.0",
-    "fs-extra": "^11.3.0",
-    "moment": "^2.30.1"
-  },
-  "packageManager": "pnpm@9.15.4+sha512.b2dc20e2fc72b3e18848459b37359a32064663e5627a51e4c74b2c29dd8e8e0491483c3abb40789cfd578bf362fb6ba8261b05f0387d76792ed6e23ea3b1b6a0"
+    "name": "latexmk-watcher",
+    "version": "0.0.2",
+    "description": "A latexmk watcher to improve productivity.",
+    "homepage": "https://github.com/TypingHare/latexmk-watcher",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "type": "module",
+    "bin": {
+        "latexmk-watcher": "src/bin/latexmk-watcher",
+        "lmkw": "src/bin/lmkw"
+    },
+    "scripts": {
+        "build": "rm -rf dist && tsc"
+    },
+    "keywords": [
+        "latex",
+        "latexxmk",
+        "watcher"
+    ],
+    "files": [
+        "dist",
+        "LICENSE",
+        "README.md",
+        "tsconfig.json"
+    ],
+    "author": "James Chen",
+    "license": "MIT",
+    "devDependencies": {
+        "@types/fs-extra": "^11.0.4",
+        "@types/node": "^22.15.21",
+        "prettier": "^3.5.3",
+        "typescript": "^5.8.3"
+    },
+    "prettier": {
+        "trailingComma": "es5",
+        "tabWidth": 4,
+        "semi": false,
+        "singleQuote": true,
+        "endOfLine": "auto",
+        "printWidth": 80
+    },
+    "dependencies": {
+        "chalk": "^5.4.1",
+        "commander": "^14.0.0",
+        "fs-extra": "^11.3.0",
+        "moment": "^2.30.1"
+    },
+    "packageManager": "pnpm@10.11.0"
 }
